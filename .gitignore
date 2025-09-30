@@ -1,0 +1,19 @@
+﻿# dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# testing
+coverage/
+
+# production
+build/
+dist/
+out/
+
+# misc
+.DS_Store
+.env
+.env.*
+firebase-debug.log
+firebase-export-*.json

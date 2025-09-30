@@ -1,0 +1,17 @@
+﻿# CODEOWNERS — SRIYA
+# Syntax: <path> <owner1> <owner2>
+# Owner হতে পারে: @username বা @org/team-name
+
+# ডিফল্ট রুল: সব ফাইলে রিভিউ/অনার হিসেবে SRIYA admins টিম
+* @almegagroup/sriya-admins
+
+# উদাহরণ: ফ্রন্টএন্ড (web/) গেলে UI টিম
+web/** @almegagroup/sriya-admins
+
+# উদাহরণ: ব্যাকএন্ড (functions/) গেলে API টিম
+functions/** @almegagroup/sriya-admins
+
+# docs/ গেলে আর্কিটেকচার/প্রসেস টিম
+docs/** @almegagroup/sriya-admins
+
+# নোট: যদি টিমটা এখনো না থাকে, পরে আমরা টিম/ইউজার বদলে দেবো।

@@ -18,6 +18,7 @@ const ALLOWED_ORIGINS = [
   "https://sriya-0504.web.app",
   "https://sriya-0504.firebaseapp.com",
   "https://sriya-0504--dev-ykpw71e1.web.app",
+  "https://sriya-0504--dev-ykpw71e1.firebaseapp.com ",
   // "https://erp.almegagroup.in"
   // TODO: add after Hosting
 ];

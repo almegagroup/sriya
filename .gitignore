@@ -17,4 +17,4 @@ out/
 .env.*
 firebase-debug.log
 firebase-export-*.json
-.firebase/
+.firebase/firestore-debug.log

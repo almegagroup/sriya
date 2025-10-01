@@ -72,7 +72,7 @@ jobs:
         run: |
           firebase hosting:channel:deploy dev \
             --project "${{ vars.PROD_PROJECT_ID }}" \
-            --expires 7d
+            --expires 3d
           echo "Preview URLs ^^^ (copy the web.app one)"
 
   # ---------- MAIN BRANCH: Live build + deploy (api + hosting live) ----------

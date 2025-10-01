@@ -37,30 +37,62 @@ jobs:
       - name: Install Firebase CLI
         run: npm i -g firebase-tools
 
-      # ----- Build & quick checks: functions -----
+      # -------- Detect which part changed (so we can skip unnecessary deploys) --------
+      - name: Detect changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            functions:
+              - 'functions/**'
+              - 'firebase.json'
+            web:
+              - 'web/**'
+
+      # ----- Functions (only if functions changed) -----
       - name: Functions - install
+        if: steps.changes.outputs.functions == 'true'
         working-directory: functions
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
 
       - name: Functions - audit (non-blocking)
+        if: steps.changes.outputs.functions == 'true'
         working-directory: functions
         run: npm audit --omit=dev --audit-level=high || true
 
-      # ----- Build & quick checks: web (preview mode -> uses .env.preview) -----
+      # ----- Web (only if web changed) -----
       - name: Web - install
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Web - create .env.preview (no-commit)
+        if: steps.changes.outputs.web == 'true'
+        working-directory: web
+        run: |
+          cat > .env.preview << 'EOF'
+          VITE_API_BASE=/api-dev
+          VITE_FB_API_KEY=${{ vars.VITE_FB_API_KEY }}
+          VITE_FB_AUTH_DOMAIN=${{ vars.VITE_FB_AUTH_DOMAIN }}
+          VITE_FB_PROJECT_ID=${{ vars.VITE_FB_PROJECT_ID }}
+          VITE_FB_APP_ID=${{ vars.VITE_FB_APP_ID }}
+          VITE_FB_STORAGE_BUCKET=${{ vars.VITE_FB_STORAGE_BUCKET }}
+          VITE_FB_MESSAGING_SENDER_ID=${{ vars.VITE_FB_MESSAGING_SENDER_ID }}
+          EOF
 
       - name: Web - build (preview)
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm run build -- --mode preview
 
       - name: Web - audit (non-blocking)
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm audit --omit=dev --audit-level=high || true
 
       # ----- Deploy: functions:apiDev (dev DB) -----
       - name: Deploy Functions (apiDev)
+        if: steps.changes.outputs.functions == 'true'
         run: |
           firebase deploy \
             --only functions:apiDev \
@@ -69,6 +101,7 @@ jobs:
 
       # ----- Deploy: hosting preview channel -----
       - name: Deploy Hosting (preview channel)
+        if: steps.changes.outputs.web == 'true'
         run: |
           firebase hosting:channel:deploy dev \
             --project "${{ vars.PROD_PROJECT_ID }}" \
@@ -98,30 +131,62 @@ jobs:
       - name: Install Firebase CLI
         run: npm i -g firebase-tools
 
-      # ----- Build & quick checks: functions -----
+      # -------- Detect changes (same logic) --------
+      - name: Detect changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            functions:
+              - 'functions/**'
+              - 'firebase.json'
+            web:
+              - 'web/**'
+
+      # ----- Functions (only if functions changed) -----
       - name: Functions - install
+        if: steps.changes.outputs.functions == 'true'
         working-directory: functions
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
 
       - name: Functions - audit (non-blocking)
+        if: steps.changes.outputs.functions == 'true'
         working-directory: functions
         run: npm audit --omit=dev --audit-level=high || true
 
-      # ----- Build & quick checks: web (production) -----
+      # ----- Web (only if web changed) -----
       - name: Web - install
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
-        run: npm ci
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Web - create .env.production (no-commit)
+        if: steps.changes.outputs.web == 'true'
+        working-directory: web
+        run: |
+          cat > .env.production << 'EOF'
+          VITE_API_BASE=/api
+          VITE_FB_API_KEY=${{ vars.VITE_FB_API_KEY }}
+          VITE_FB_AUTH_DOMAIN=${{ vars.VITE_FB_AUTH_DOMAIN }}
+          VITE_FB_PROJECT_ID=${{ vars.VITE_FB_PROJECT_ID }}
+          VITE_FB_APP_ID=${{ vars.VITE_FB_APP_ID }}
+          VITE_FB_STORAGE_BUCKET=${{ vars.VITE_FB_STORAGE_BUCKET }}
+          VITE_FB_MESSAGING_SENDER_ID=${{ vars.VITE_FB_MESSAGING_SENDER_ID }}
+          EOF
 
       - name: Web - build (production)
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm run build -- --mode production
 
       - name: Web - audit (non-blocking)
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm audit --omit=dev --audit-level=high || true
 
       # ----- Deploy: functions:api (prod DB) -----
       - name: Deploy Functions (api)
+        if: steps.changes.outputs.functions == 'true'
         run: |
           firebase deploy \
             --only functions:api \
@@ -130,6 +195,7 @@ jobs:
 
       # ----- Deploy: hosting live -----
       - name: Deploy Hosting (live)
+        if: steps.changes.outputs.web == 'true'
         run: |
           firebase deploy \
             --only hosting \

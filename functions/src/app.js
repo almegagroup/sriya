@@ -14,7 +14,12 @@ function createApp() {
 
   // 🔧 add this normalizer so /api/* hits /hello, /fs/*, /me, etc.
   app.use((req, _res, next) => {
-    if (req.path.startsWith("/api/")) {
+    // strip /api-dev first
+    if (/^\/api-dev(\/|$)/.test(req.path)) {
+      req.url = req.url.replace(/^\/api-dev/, "");
+    }
+    // strip /api next
+    else if (/^\/api(\/|$)/.test(req.path)) {
       req.url = req.url.replace(/^\/api/, "");
     }
     next();
